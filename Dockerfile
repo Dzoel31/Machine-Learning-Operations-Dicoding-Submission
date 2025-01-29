@@ -1,6 +1,6 @@
 FROM tensorflow/serving:latest
 
-COPY ./dzulfikriadjmal-pipeline/serving_model /models/sentence-sentiment
+COPY ./output/serving_model /models/sentence-sentiment
 COPY ./config /model_config
 
 ENV MODEL_NAME=sentence-sentiment
