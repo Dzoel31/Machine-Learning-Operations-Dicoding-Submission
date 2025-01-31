@@ -1,19 +1,21 @@
-""" Module for training a sentiment analysis model using Twitter data. """
+"""Module for training a sentiment analysis model using Twitter data."""
 
+import os
 import tensorflow as tf
 from keras.utils.vis_utils import plot_model
 import tensorflow_transform as tft
 from tensorflow.keras import layers
-import os
 from tfx.components.trainer.fn_args_utils import FnArgs
 from sentence_sentiment_transform import (
     transformed_name,
     LABEL_KEY,
     FEATURE_KEY,
 )
+
+
 def gzip_reader_fn(filenames):
     """Loads compressed data
-    
+
     Args:
         filenames: str, file path
     Returns:
@@ -49,15 +51,17 @@ def input_fn(
     )
     return dataset
 
+
 VOCAB_SIZE = 500
 SEQUENCE_LENGTH = 32
-embedding_dim = 32
+EMBEDDING_DIM = 32
 vectorize_layer = layers.TextVectorization(
     standardize="lower_and_strip_punctuation",
     max_tokens=VOCAB_SIZE,
     output_mode="int",
     output_sequence_length=SEQUENCE_LENGTH,
 )
+
 
 def model_builder():
     """Build machine learning model"""
@@ -67,7 +71,7 @@ def model_builder():
     )
     reshaped_narrative = tf.reshape(inputs, [-1])
     x = vectorize_layer(reshaped_narrative)
-    x = layers.Embedding(VOCAB_SIZE, embedding_dim, name="embedding")(x)
+    x = layers.Embedding(VOCAB_SIZE, EMBEDDING_DIM, name="embedding")(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dense(64, activation="relu")(x)
     x = layers.Dense(32, activation="relu")(x)
@@ -96,7 +100,8 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
 
         feature_spec.pop(LABEL_KEY)
 
-        parsed_features = tf.io.parse_example(serialized_tf_examples, feature_spec)
+        parsed_features = tf.io.parse_example(
+            serialized_tf_examples, feature_spec)
 
         transformed_features = model.tft_layer(parsed_features)
 
@@ -107,6 +112,7 @@ def _get_serve_tf_examples_fn(model, tf_transform_output):
 
 
 def run_fn(fn_args: FnArgs) -> None:
+    """Train the model based on the settings provided"""
     log_dir = os.path.join(os.path.dirname(fn_args.serving_model_dir), "logs")
 
     tensorboard_callback = tf.keras.callbacks.TensorBoard(
@@ -157,7 +163,10 @@ def run_fn(fn_args: FnArgs) -> None:
             tf.TensorSpec(shape=[None], dtype=tf.string, name="examples")
         )
     }
-    model.save(fn_args.serving_model_dir, save_format="tf", signatures=signatures)
+    model.save(
+        fn_args.serving_model_dir,
+        save_format="tf",
+        signatures=signatures)
 
     plot_model(
         model,

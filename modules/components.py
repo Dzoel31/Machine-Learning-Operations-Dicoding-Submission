@@ -73,8 +73,12 @@ def init_components(
         examples=transform.outputs["transformed_examples"],
         transform_graph=transform.outputs["transform_graph"],
         schema=schema_gen.outputs["schema"],
-        train_args=trainer_pb2.TrainArgs(splits=["train"], num_steps=training_steps),
-        eval_args=trainer_pb2.EvalArgs(splits=["eval"], num_steps=eval_steps),
+        train_args=trainer_pb2.TrainArgs(
+            splits=["train"],
+            num_steps=training_steps),
+        eval_args=trainer_pb2.EvalArgs(
+            splits=["eval"],
+            num_steps=eval_steps),
     )
 
     model_resolver = Resolver(

@@ -1,6 +1,5 @@
-""" Transform module for Twitter Sentiment Analysis """
+"""Transform module for Twitter Sentiment Analysis"""
 
-import os
 import tensorflow as tf
 
 LABEL_KEY = "sentiment"
@@ -9,7 +8,7 @@ FEATURE_KEY = "sentence"
 
 def transformed_name(key):
     """Renaming transformed features
-    
+
     Args:
         key: str, feature key
 
@@ -17,6 +16,7 @@ def transformed_name(key):
         str, transformed feature key
     """
     return key + "_xf"
+
 
 def preprocessing_fn(inputs):
     """Implement transormation for the input features
@@ -30,7 +30,8 @@ def preprocessing_fn(inputs):
 
     outputs = inputs.copy()
 
-    outputs[transformed_name(FEATURE_KEY)] = tf.strings.lower(inputs[FEATURE_KEY])
+    outputs[transformed_name(FEATURE_KEY)] = tf.strings.lower(
+        inputs[FEATURE_KEY])
 
     outputs[transformed_name(LABEL_KEY)] = tf.cast(inputs[LABEL_KEY], tf.int64)
 
